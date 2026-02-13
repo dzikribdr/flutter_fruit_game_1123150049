@@ -13,10 +13,14 @@ class AudioManager {
       'music/background_music.mp3',
       'sfx/collect.mp3',
     ]);
+
+    FlameAudio.bgm.initialize();
   }
 
   void playBackgroundMusic() {
-    if (_music) FlameAudio.bgm.play('music/background_music.mp3');
+    if (_music && !FlameAudio.bgm.isPlaying) {
+      FlameAudio.bgm.play('music/background_music.mp3');
+    }
   }
 
   void toggleMusic() {

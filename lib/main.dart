@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-import 'package:fruit/game/fruit.catcher_game.dart';
-import 'package:fruit/game/managers/audio_manager.dart';
+import 'game/fruit.catcher_game.dart';
+import 'game/managers/audio_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,57 +39,23 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   @override
-  void dispose() {
-    game.onRemove();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // LAYER 1 → GAME FLAME
           GameWidget(game: game),
 
-          // LAYER 2 → SCORE
           Positioned(
-            top: 50,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ValueListenableBuilder<int>(
-                valueListenable: game.scoreNotifier,
-                builder: (context, score, child) {
-                  return Text(
-                    'Score: $score',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // LAYER 3 → ICON CONTROL
-          Positioned(
-            top: 50,
+            top: 40,
             right: 20,
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.music_note),
+                  icon: const Icon(Icons.music_note, color: Colors.white),
                   onPressed: () => AudioManager().toggleMusic(),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.volume_up),
+                  icon: const Icon(Icons.volume_up, color: Colors.white),
                   onPressed: () => AudioManager().toggleSfx(),
                 ),
               ],
