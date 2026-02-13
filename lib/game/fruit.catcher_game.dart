@@ -13,53 +13,106 @@ import 'managers/audio_manager.dart';
 class FruitCatcherGame extends FlameGame
     with HasCollisionDetection, PanDetector {
   final Random random = Random();
+
   int score = 0;
-  late TextComponent scoreText;
+  int highScore = 0;
+  int level = 1;
+  int life = 3;
+
+  double spawnRate = 1;
+  double fruitSpeed = 200;
+
+  late TextComponent hudText;
 
   @override
   Future<void> onLoad() async {
     add(Basket(position: Vector2(size.x / 2, size.y - 70)));
 
-    scoreText = TextComponent(
-      text: 'Score: 0',
-      position: Vector2(16, 16),
+    hudText = TextComponent(
+      text: hudString,
+      position: Vector2(12, 12),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
         style: const TextStyle(
-          fontSize: 24,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.white,
-          shadows: [Shadow(color: Colors.black, blurRadius: 3)],
+          shadows: [Shadow(color: Colors.black, blurRadius: 4)],
         ),
       ),
     );
 
-    add(scoreText);
+    add(hudText);
 
-    add(TimerComponent(period: 0.9, repeat: true, onTick: spawnFruit));
+    add(TimerComponent(period: spawnRate, repeat: true, onTick: spawnFruit));
 
     AudioManager().playBackgroundMusic();
   }
 
+  String get hudString =>
+      'Score: $score   ❤️ $life   Lv: $level   🏆 $highScore';
+
   void spawnFruit() {
     final x = random.nextDouble() * size.x;
-    add(Fruit(position: Vector2(x, -30)));
+    add(Fruit(position: Vector2(x, -40), speed: fruitSpeed));
   }
 
   void addScore(Vector2 pos) {
     score++;
-    scoreText.text = 'Score: $score';
+    if (score > highScore) highScore = score;
 
     add(FloatingText(text: '+1', position: pos, color: Colors.greenAccent));
-
     AudioManager().playSfx('collect.mp3');
+
+    if (score % 10 == 0) nextLevel();
+
+    updateHud();
   }
 
-  void minusScore(Vector2 pos) {
-    score--;
-    scoreText.text = 'Score: $score';
+  void missFruit(Vector2 pos) {
+    life--;
 
     add(FloatingText(text: '-1', position: pos, color: Colors.redAccent));
+
+    if (life <= 0) gameOver();
+
+    updateHud();
+  }
+
+  void nextLevel() {
+    level++;
+    fruitSpeed += 60;
+
+    spawnRate = max(0.35, spawnRate - 0.08);
+
+    children.whereType<TimerComponent>().forEach((t) {
+      t.timer.stop();
+      t.timer.start();
+      t.timer.limit = spawnRate;
+    });
+  }
+
+  void updateHud() {
+    hudText.text = hudString;
+  }
+
+  void gameOver() {
+    pauseEngine();
+
+    add(
+      TextComponent(
+        text: 'GAME OVER',
+        anchor: Anchor.center,
+        position: size / 2,
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -67,7 +120,6 @@ class FruitCatcherGame extends FlameGame
     final basket = children.whereType<Basket>().first;
 
     basket.position.x += info.delta.global.x;
-
     basket.position.x = basket.position.x.clamp(
       basket.size.x / 2,
       size.x - basket.size.x / 2,
