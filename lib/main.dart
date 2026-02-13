@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-import 'game/fruit.catcher_game.dart';
 import 'game/managers/audio_manager.dart';
+import 'package:fruit/game/fruit.catcher_game.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +17,49 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: GameScreen(),
+      home: StartScreen(),
+    );
+  }
+}
+
+class StartScreen extends StatelessWidget {
+  const StartScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.lightBlue,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Fruit Catcher',
+              style: TextStyle(
+                fontSize: 42,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 14,
+                ),
+              ),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GameScreen()),
+                );
+              },
+              child: const Text('START', style: TextStyle(fontSize: 22)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -35,7 +77,32 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    game = FruitCatcherGame();
+    game = FruitCatcherGame(onGameOver: _onGameOver);
+  }
+
+  void _onGameOver(int score, int highScore) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('Game Over'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [Text('Score: $score'), Text('High Score: $highScore')],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const GameScreen()),
+              );
+            },
+            child: const Text('RESTART'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

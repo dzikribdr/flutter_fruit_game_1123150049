@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 
-import '../fruit.catcher_game.dart';
+import 'package:fruit/game/fruit.catcher_game.dart';
 import 'basket.dart';
 
 class Fruit extends SpriteComponent

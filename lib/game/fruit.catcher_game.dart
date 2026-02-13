@@ -12,6 +12,10 @@ import 'managers/audio_manager.dart';
 
 class FruitCatcherGame extends FlameGame
     with HasCollisionDetection, PanDetector {
+  final void Function(int score, int highScore) onGameOver;
+
+  FruitCatcherGame({required this.onGameOver});
+
   final Random random = Random();
 
   int score = 0;
@@ -23,6 +27,7 @@ class FruitCatcherGame extends FlameGame
   double fruitSpeed = 200;
 
   late TextComponent hudText;
+  late TimerComponent spawnTimer;
 
   @override
   Future<void> onLoad() async {
@@ -44,7 +49,13 @@ class FruitCatcherGame extends FlameGame
 
     add(hudText);
 
-    add(TimerComponent(period: spawnRate, repeat: true, onTick: spawnFruit));
+    spawnTimer = TimerComponent(
+      period: spawnRate,
+      repeat: true,
+      onTick: spawnFruit,
+    )..timer.start();
+
+    add(spawnTimer);
 
     AudioManager().playBackgroundMusic();
   }
@@ -84,12 +95,8 @@ class FruitCatcherGame extends FlameGame
     fruitSpeed += 60;
 
     spawnRate = max(0.35, spawnRate - 0.08);
-
-    children.whereType<TimerComponent>().forEach((t) {
-      t.timer.stop();
-      t.timer.start();
-      t.timer.limit = spawnRate;
-    });
+    spawnTimer.timer.limit = spawnRate;
+    spawnTimer.timer.start();
   }
 
   void updateHud() {
@@ -98,21 +105,7 @@ class FruitCatcherGame extends FlameGame
 
   void gameOver() {
     pauseEngine();
-
-    add(
-      TextComponent(
-        text: 'GAME OVER',
-        anchor: Anchor.center,
-        position: size / 2,
-        textRenderer: TextPaint(
-          style: const TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
-        ),
-      ),
-    );
+    onGameOver(score, highScore);
   }
 
   @override

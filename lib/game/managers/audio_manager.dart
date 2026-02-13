@@ -13,7 +13,6 @@ class AudioManager {
       'music/background_music.mp3',
       'sfx/collect.mp3',
     ]);
-
     FlameAudio.bgm.initialize();
   }
 
@@ -31,6 +30,6 @@ class AudioManager {
   void toggleSfx() => _sfx = !_sfx;
 
   void playSfx(String file) {
-    if (_sfx) FlameAudio.play('sfx/$file');
+    if (_sfx) FlameAudio.play('sfx/$file', volume: 0.7);
   }
 }
