@@ -36,6 +36,7 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // Score (kiri atas)
           Positioned(
             top: 50,
             left: 20,
@@ -53,6 +54,24 @@ class _GameScreenState extends State<GameScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            ),
+          ),
+
+          // Icon musik & volume (kanan atas)
+          Positioned(
+            top: 50,
+            right: 20,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.music_note, color: Colors.black),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.volume_up, color: Colors.black),
+                  onPressed: () {},
+                ),
+              ],
             ),
           ),
         ],
