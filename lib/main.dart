@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flame/game.dart';
 
-void main() {
+import 'package:fruit/game/fruit.catcher_game.dart';
+import 'package:fruit/game/managers/audio_manager.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AudioManager().initialize();
   runApp(const MyApp());
 }
 
@@ -9,11 +15,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fruit Catcher Game',
-
-      home: const GameScreen(),
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
+      home: GameScreen(),
     );
   }
 }
@@ -26,11 +30,18 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  final ValueNotifier<int> counter = ValueNotifier(1);
+  late FruitCatcherGame game;
 
   @override
   void initState() {
     super.initState();
+    game = FruitCatcherGame();
+  }
+
+  @override
+  void dispose() {
+    game.onRemove();
+    super.dispose();
   }
 
   @override
@@ -38,7 +49,10 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Score
+          // LAYER 1 → GAME FLAME
+          GameWidget(game: game),
+
+          // LAYER 2 → SCORE
           Positioned(
             top: 50,
             left: 20,
@@ -49,7 +63,7 @@ class _GameScreenState extends State<GameScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: ValueListenableBuilder<int>(
-                valueListenable: counter,
+                valueListenable: game.scoreNotifier,
                 builder: (context, score, child) {
                   return Text(
                     'Score: $score',
@@ -64,19 +78,19 @@ class _GameScreenState extends State<GameScreen> {
             ),
           ),
 
-          // Icon kanan atas
+          // LAYER 3 → ICON CONTROL
           Positioned(
             top: 50,
             right: 20,
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.music_note, color: Colors.black),
-                  onPressed: () {},
+                  icon: const Icon(Icons.music_note),
+                  onPressed: () => AudioManager().toggleMusic(),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.volume_up, color: Colors.black),
-                  onPressed: () {},
+                  icon: const Icon(Icons.volume_up),
+                  onPressed: () => AudioManager().toggleSfx(),
                 ),
               ],
             ),
