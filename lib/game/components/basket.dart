@@ -1,8 +1,10 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 
-class Basket extends PositionComponent with HasGameRef, CollisionCallbacks {
+class Basket extends PositionComponent
+    with HasGameRef, CollisionCallbacks, DragCallbacks {
   Basket() : super(size: Vector2(100, 60));
 
   @override
@@ -10,6 +12,14 @@ class Basket extends PositionComponent with HasGameRef, CollisionCallbacks {
     position = Vector2(gameRef.size.x / 2, gameRef.size.y - 100);
     anchor = Anchor.center;
     add(RectangleHitbox());
+  }
+
+  @override
+  void onDragUpdate(DragUpdateEvent event) {
+    position.x += event.localDelta.x;
+
+    // Supaya tidak keluar layar
+    position.x = position.x.clamp(size.x / 2, gameRef.size.x - size.x / 2);
   }
 
   @override
