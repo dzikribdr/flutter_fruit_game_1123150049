@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
+import 'game/fruit.catcher_game.dart';
 import 'game/managers/audio_manager.dart';
-import 'package:fruit/game/fruit.catcher_game.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,49 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StartScreen(),
-    );
-  }
-}
-
-class StartScreen extends StatelessWidget {
-  const StartScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.lightBlue,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Fruit Catcher',
-              style: TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 14,
-                ),
-              ),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const GameScreen()),
-                );
-              },
-              child: const Text('START', style: TextStyle(fontSize: 22)),
-            ),
-          ],
-        ),
-      ),
+      home: GameScreen(),
     );
   }
 }
@@ -73,35 +31,24 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late FruitCatcherGame game;
+  bool isGameOver = false;
+  int lastScore = 0;
 
   @override
   void initState() {
     super.initState();
-    game = FruitCatcherGame(onGameOver: _onGameOver);
+    startGame();
   }
 
-  void _onGameOver(int score, int highScore) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: const Text('Game Over'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [Text('Score: $score'), Text('High Score: $highScore')],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const GameScreen()),
-              );
-            },
-            child: const Text('RESTART'),
-          ),
-        ],
-      ),
+  void startGame() {
+    isGameOver = false;
+    game = FruitCatcherGame(
+      onGameOver: (score) {
+        setState(() {
+          isGameOver = true;
+          lastScore = score;
+        });
+      },
     );
   }
 
@@ -118,16 +65,48 @@ class _GameScreenState extends State<GameScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.music_note, color: Colors.white),
+                  icon: const Icon(Icons.music_note),
+                  color: Colors.white,
                   onPressed: () => AudioManager().toggleMusic(),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.volume_up, color: Colors.white),
+                  icon: const Icon(Icons.volume_up),
+                  color: Colors.white,
                   onPressed: () => AudioManager().toggleSfx(),
                 ),
               ],
             ),
           ),
+
+          if (isGameOver)
+            Container(
+              color: Colors.black54,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'GAME OVER',
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Score: $lastScore',
+                      style: const TextStyle(fontSize: 26, color: Colors.white),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () => setState(startGame),
+                      child: const Text('Restart'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

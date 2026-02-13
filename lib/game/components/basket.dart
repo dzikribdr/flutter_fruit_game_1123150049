@@ -1,9 +1,9 @@
-import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 class Basket extends PositionComponent with CollisionCallbacks {
-  Basket({super.position}) : super(size: Vector2(110, 32));
+  Basket() : super(size: Vector2(100, 24));
 
   @override
   Future<void> onLoad() async {
@@ -13,24 +13,11 @@ class Basket extends PositionComponent with CollisionCallbacks {
 
   @override
   void render(Canvas canvas) {
-    final shadow = Paint()
-      ..color = Colors.black26
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-
-    final paint = Paint()..color = Colors.orangeAccent;
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(2, 4, size.x, size.y),
-        const Radius.circular(16),
-      ),
-      shadow,
-    );
-
+    final paint = Paint()..color = Colors.orange;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(0, 0, size.x, size.y),
-        const Radius.circular(16),
+        const Radius.circular(14),
       ),
       paint,
     );

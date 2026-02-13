@@ -1,29 +1,21 @@
 import 'dart:math';
-
-import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 
-import 'package:fruit/game/fruit.catcher_game.dart';
+import '../fruit.catcher_game.dart';
 import 'basket.dart';
 
-class Fruit extends SpriteComponent
+class Fruit extends PositionComponent
     with HasGameRef<FruitCatcherGame>, CollisionCallbacks {
   final double speed;
 
   Fruit({required super.position, required this.speed})
-    : super(size: Vector2.all(42));
-
-  static final images = [
-    'images/apple.png',
-    'images/banana.png',
-    'images/orange.png',
-    'images/strawberry.png',
-  ];
+    : super(size: Vector2.all(36));
 
   @override
   Future<void> onLoad() async {
     anchor = Anchor.center;
-    sprite = await Sprite.load(images[Random().nextInt(images.length)]);
     add(CircleHitbox());
   }
 
@@ -31,7 +23,7 @@ class Fruit extends SpriteComponent
   void update(double dt) {
     position.y += speed * dt;
 
-    if (position.y > gameRef.size.y + 60) {
+    if (position.y > gameRef.size.y + 40) {
       gameRef.missFruit(position.clone());
       removeFromParent();
     }
@@ -43,5 +35,13 @@ class Fruit extends SpriteComponent
       gameRef.addScore(position.clone());
       removeFromParent();
     }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    final paint = Paint()
+      ..color = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+
+    canvas.drawCircle(Offset(size.x / 2, size.y / 2), size.x / 2, paint);
   }
 }
